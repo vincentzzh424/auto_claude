@@ -1,11 +1,11 @@
-# Auto_Claude 🤖👐
+# Auto_Claude_CLI 🤖👐
 
 ### The True hands-free Software Development
 **从想法到交付，只需一个脚本。体验真正的“解放双手”。**
 
 > **Liberate your hands.** Experience true hands-free software development.
 >
-> Auto_Claude 是一个由单脚本驱动的 **Headless（无头）** 软件工厂。它指挥一个虚拟 AI Agent 团队（产品经理、架构师、开发、测试），在你睡觉时将原始想法转化为功能完整、重构过且测试通过的代码库。
+> Auto_Claude_CLI 是一个由单脚本驱动的 **轻量化** 软件工厂。它指挥一个虚拟 AI Agent 团队（产品经理、架构师、开发、测试），在你睡觉时将原始想法转化为功能完整、重构过且测试通过的代码库。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
@@ -38,12 +38,12 @@ npm install -g @anthropic-ai/claude-code
 
 选项 B: 使用官方 Anthropic Key (100元/月)
 
-### 2. 安装 Auto_Claude
+### 2. 安装 auto_claude_cli
 零依赖逻辑，极简 Python 需求。
 
 ```Bash
-git clone https://github.com/vincentzzh424/auto_claude.git
-cd auto_claude
+git clone https://github.com/vincentzzh424/auto_claude_cli.git
+cd auto_claude_cli
 # (可选) 创建一个演示目录以保持整洁
 mkdir demo && cd demo 
 ```

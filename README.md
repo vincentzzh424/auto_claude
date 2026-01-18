@@ -1,10 +1,10 @@
-# Auto_Claude 🤖👐
+# Auto_Claude_CLI 🤖👐
 
 ### The Zero-Intervention Software Factory
 **从想法到交付，只需一个脚本。体验真正的“解放双手”。**
 
 > **Liberate your hands.** Experience true hands-free software development.
-> Auto_Claude is a **headless** software factory powered by a single script. It orchestrates a virtual team of AI agents (PM, Architect, Developer, QA) to transform raw ideas into fully functional, refactored, and tested codebases while you sleep.
+> Auto_Claude_CLI is a **headless** software factory powered by a single script. It orchestrates a virtual team of AI agents (PM, Architect, Developer, QA) to transform raw ideas into fully functional, refactored, and tested codebases while you sleep.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
@@ -38,12 +38,12 @@ Option A (Recommended): [**Get GLM-Coding Key (~$0.1/day)**](https://www.bigmode
 
 Option B: Use Official Anthropic Key ($20/month)
 
-### 2. Run Auto_Claude
+### 2. Init Auto_Claude_CLI
 Dependency-free , minimal python requirements.
 
 ```Bash
-git clone https://github.com/vincentzzh424/auto_claude.git
-cd auto_claude
+git clone https://github.com/vincentzzh424/auto_claude_cli.git
+cd auto_claude_cli
 # (Optional) Create a workspace to keep things clean
 mkdir demo && cd demo 
 ```

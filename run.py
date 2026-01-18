@@ -20,6 +20,7 @@ class ConsoleStyle:
     YELLOW = '\033[93m'
     FAIL = '\033[91m'
     ENDC = '\033[0m'
+    
 
 def print_step(stage, msg):
     """Prints a stylized stage header and message to the console."""
@@ -111,6 +112,7 @@ def stage_product_definition(raw_idea):
     prompt = f"""
     [ROLE]: Senior Product Manager (PM)
     [IDEA]: {raw_idea}
+    [LANGUAGE]: USE IDEA SAME LANGUAGE
     
     Please perform a deep requirement analysis on this idea.
     
@@ -130,6 +132,7 @@ def stage_system_architecture():
     prompt = f"""
     [ROLE]: System Architect
     [TASK]: Design the code architecture based on the PRD.
+    [LANGUAGE]: USE PRD.md SAME LANGUAGE
     
     Read `PRD.md` and `DATA_FLOW.md`.
     
@@ -213,6 +216,7 @@ def build_single_module(name, info):
     [DOCS]: PRD.md
     [ARCH]: architecture.json
     [TASK]: Develop the module `{name}` defined in modules.
+    [COMMENT LANGUAGE]: USE PRD.md SAME LANGUAGE
     
     REQUIREMENTS:
     1. **NO MOCK**: Dependencies are ready. Import and use them directly.
@@ -230,6 +234,7 @@ def integrate_module_into_entry(entry_point, completed_modules_list):
     [TASK]: Update the entry point file `{entry_point}`
     [DOCS]: PRD.md
     [ARCH]: architecture.json
+    [COMMENT LANGUAGE]: USE PRD.md SAME LANGUAGE
     [READY MODULES]: {completed_modules_list}
     
     INSTRUCTIONS:
@@ -248,6 +253,7 @@ def verify_module_via_cli(entry_point, module_name):
     [ROLE]: QA Engineer
     [DOCS]: PRD.md
     [ARCH]: architecture.json
+    [COMMENT LANGUAGE]: USE PRD.md SAME LANGUAGE
     [TASK]: Verify that `{module_name}` is successfully integrated into `{entry_point}`.
     
     INSTRUCTIONS:
@@ -267,6 +273,7 @@ def stage_refactoring(arch_data):
     [TASK]: Review code design, simplify unreasonable modules, and ensure a solid foundation.
     [DOCS]: PRD.md
     [ARCH]: architecture.json
+    [COMMENT LANGUAGE]:USE PRD.md SAME LANGUAGE
     
     EXECUTION STEPS:
     1. READ and ANALYZE the provided source files.
@@ -290,6 +297,7 @@ def stage_final_acceptance(entry_point):
     [ROLE]: Acceptance Test Lead
     [TASK]: End-to-End System Test
     [DOCS]: PRD.md
+    [LANGUAGE]: USE PRD.md SAME LANGUAGE
     
     All modules are developed and integrated. Verify their collaboration.
     
