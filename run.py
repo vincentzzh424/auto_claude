@@ -45,15 +45,7 @@ def execute_claude_agent(prompt, context_files=[], allow_fail=False, max_retries
     Invokes the Claude CLI via a temporary instruction file to bypass shell length limits.
     """
     # 1. Build context from files
-    context_str = ""
-    for fpath in context_files:
-        if os.path.exists(fpath):
-            with open(fpath, 'r', encoding='utf-8') as f:
-                content = f.read()
-                # Safety truncation to avoid token overflow
-                if len(content) > 12000:
-                    content = content[:12000] + "\n...(truncated)..."
-                context_str += f"\n\n--- FILE: {fpath} ---\n{content}\n----------------\n"
+    context_str = ",".join(context_files)
     
     # 2. Construct the massive system instruction
     massive_prompt_content = f"""
@@ -82,7 +74,7 @@ def execute_claude_agent(prompt, context_files=[], allow_fail=False, max_retries
     cmd = [
         "claude", 
         "--dangerously-skip-permissions", 
-        "-p", trigger_prompt 
+        "-p", trigger_prompt ,"--verbose"
     ]
     
     is_windows = (os.name == 'nt')
@@ -104,25 +96,112 @@ def execute_claude_agent(prompt, context_files=[], allow_fail=False, max_retries
                 if not allow_fail:
                     sys.exit(1)
 
+# ================= STAGE -1: Requirement Research =================
+
+def stage_requirement_research(raw_idea):
+    print_step("STAGE -1", "Requirement Research & Analysis (Researcher)")
+
+    prompt = f"""
+    [ROLE]: Senior Product Researcher
+    [IDEA]: {raw_idea}
+    [LANGUAGE]: USE IDEA SAME LANGUAGE
+
+    Please conduct comprehensive requirement research and analysis for this idea.
+
+    RESEARCH SCOPE:
+    1. **Market Research**: Identify similar products, competitors, and market trends
+    2. **User Analysis**: Define target users, user personas, and use cases
+    3. **Technical Feasibility**: Identify technical challenges, required technologies, and potential solutions
+    4. **Best Practices**: Research industry standards, design patterns, and best practices for similar systems
+    5. **Potential Risks**: Identify technical, business, and implementation risks
+    6. **Feature Prioritization**: Suggest MVP features vs. future enhancements based on research
+
+    OUTPUT REQUIREMENTS:
+    - Generate `research.md` with all research findings
+    - Include citations or references to industry standards where applicable
+    - Provide actionable insights that will guide product design
+
+    NOTE: This is RESEARCH phase. Do NOT write code or design the system yet. Focus on gathering information and insights.
+    """
+    execute_claude_agent(prompt)
+
+# ================= STAGE -0.5: Brainstorming & User Scenarios =================
+
+def stage_brainstorming(raw_idea):
+    print_step("STAGE -0.5", "User Brainstorming & Scenario Design (User Personas)")
+
+    prompt = f"""
+    [ROLE]: User Experience Researcher & Scenario Designer
+    [IDEA]: {raw_idea}
+    [LANGUAGE]: USE IDEA SAME LANGUAGE
+    [CONTEXT]: Based on research findings from `research.md`
+
+    Conduct a multi-perspective brainstorming session by role-playing different target user personas.
+
+    OUTPUT REQUIREMENTS:
+    Generate `BRAIN.md` with the following sections:
+
+    1. **User Personas** (3-5 distinct personas):
+       - Name, age, occupation
+       - Technical proficiency level
+       - Primary goals and pain points
+       - Attitude toward the product concept
+
+    2. **Brainstorming Discussion**:
+       - Simulated dialogue between personas discussing the idea
+       - Each persona brings their unique perspective
+       - Conflicts, agreements, and insights from the discussion
+       - Different expectations and use cases emerge
+
+    3. **User Scenarios** (5-8 scenarios):
+       - For each scenario: context, motivation, expected outcome
+       - Cover different personas and use cases
+       - Include edge cases and unusual situations
+
+    4. **Requirements List from User Perspectives**:
+       - Must-have requirements (pain points that must be solved)
+       - Nice-to-have features (delighters)
+       - Anti-requirements (things users explicitly don't want)
+
+    5. **Ideal Future Scenarios**:
+       - Describe 2-3 "perfect world" scenarios where the product exceeds expectations
+       - What would delight users beyond basic functionality
+       - Long-term vision possibilities
+
+    CRITICAL: This brainstorming should feel REAL. Each persona should have a distinct voice, real concerns, and valid perspectives. The discussion should reveal insights that wouldn't be obvious from a single perspective.
+
+    NOTE: Do NOT write code. Only produce the BRAIN.md documentation.
+    """
+    execute_claude_agent(prompt, context_files=["research.md"])
+
 # ================= STAGE 0: Product Definition =================
 
 def stage_product_definition(raw_idea):
     print_step("STAGE 0", "Product Requirement Analysis (PM)")
-    
+
     prompt = f"""
     [ROLE]: Senior Product Manager (PM)
     [IDEA]: {raw_idea}
     [LANGUAGE]: USE IDEA SAME LANGUAGE
-    
-    Please perform a deep requirement analysis on this idea.
-    
+
+    Please perform a deep requirement analysis on this idea, BASED on the research findings AND user brainstorming insights.
+
     OUTPUT REQUIREMENTS:
     1. `PRD.md` (Product Requirement Doc): Detailed feature list, tech stack confirmation (Default: {DEFAULT_LANGUAGE}).
+       - MUST incorporate insights and findings from `research.md`
+       - MUST leverage user personas, scenarios, and requirements from `BRAIN.md`
+       - Align product features with research-backed user needs
+       - Prioritize features based on user persona discussions
+       - Consider technical feasibility identified in research
     2. `DATA_FLOW.md` (Data Flow Design): Data flow diagrams and core data structures.
-    
+       - Design data flows considering technical constraints from research
+       - Consider user journey scenarios from BRAIN.md
+
+    CRITICAL: Your PRD should be grounded in both the research findings from `research.md` AND the user insights from `BRAIN.md`. Leverage the market analysis, user personas, technical feasibility insights, and multi-perspective brainstorming to create a well-informed product specification.
+
     NOTE: Do NOT write code yet. Only produce documentation.
     """
-    execute_claude_agent(prompt)
+    execute_claude_agent(prompt, context_files=["research.md", "BRAIN.md"])
 
 # ================= STAGE 1: System Architecture =================
 
@@ -250,11 +329,11 @@ def verify_module_via_cli(entry_point, module_name):
     Acceptance test for the new module via the CLI entry point.
     """
     prompt = f"""
-    [ROLE]: QA Engineer
+    [ROLE]: QA Engineer and Senior {DEFAULT_LANGUAGE} Developer
     [DOCS]: PRD.md
     [ARCH]: architecture.json
     [COMMENT LANGUAGE]: USE PRD.md SAME LANGUAGE
-    [TASK]: Verify that `{module_name}` is successfully integrated into `{entry_point}`.
+    [TASK]: Verify that `{module_name}` is successfully integrated into `{entry_point}` and Fix exist bugs.
     
     INSTRUCTIONS:
     1. Construct a {DEFAULT_LANGUAGE} CLI command. Example: `python {entry_point} test --target [belonging_to_{module_name}] ...`
@@ -320,7 +399,13 @@ def main():
     print(f"Input Idea: {raw_idea}")
 
     # --- Pipeline Start ---
-    
+
+    # 0. Research Phase
+    stage_requirement_research(raw_idea)
+
+    # 0.5. Brainstorming Phase
+    stage_brainstorming(raw_idea)
+
     # 1. Planning Phase
     stage_product_definition(raw_idea)
     stage_system_architecture() 
